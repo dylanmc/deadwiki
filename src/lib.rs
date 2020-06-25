@@ -1,13 +1,21 @@
 #[macro_use]
+extern crate serde_derive;
+extern crate tinytemplate;
+
+#[macro_use]
 extern crate lazy_static;
 
 pub mod app;
 #[cfg(feature = "gui")]
 pub mod gui;
 pub mod helper;
+mod page;
 pub mod render;
 pub mod sync;
 pub mod util;
+mod views;
+
+pub use page::Page;
 
 lazy_static! {
     pub static ref WIKI_ROOT: std::sync::Mutex<String> = std::sync::Mutex::new(String::new());

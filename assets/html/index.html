@@ -1,14 +1,17 @@
 <p><a href="/new">new</a></p>
 <h1>deadwiki</h1>
 <article id="index-page">
-  {empty-list-msg}
+  <i style="{{ if hide_hint }}display:none;{{ endif }}">
+    Wiki Pages you create will show up here.
+  </i>
+
   <ul>
-    {pages}
+    {{ for page in pages }}
+      <li><a href="{page.name}">{page.title}</a></li>
+    {{ endfor }}
   </ul>
 </article>
 
 <script type="text/javascript">
-  window.addEventListener("dblclick", () => {
-    window.location = "/new";
-  });
+  window.addEventListener("dblclick", () => (window.location = "/new"));
 </script>
