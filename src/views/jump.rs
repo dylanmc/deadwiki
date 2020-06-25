@@ -1,23 +1,18 @@
 use {crate::Page, std::io, tinytemplate::TinyTemplate, vial::asset};
 
 #[derive(Serialize)]
-pub struct Index {
+pub struct Jump {
     pages: Vec<Page>,
-    hide_hint: bool,
 }
 
-impl Index {
-    pub fn new(pages: Vec<Page>) -> Index {
-        Index {
-            hide_hint: !pages.is_empty(),
-            pages,
-        }
+impl Jump {
+    pub fn new(pages: Vec<Page>) -> Jump {
+        Jump { pages }
     }
 
-    /// Render the index page which lists all wiki pages.
     pub fn to_string(&self) -> Result<String, io::Error> {
         let mut tt = TinyTemplate::new();
-        let index = asset::to_string("html/index.html")?;
+        let index = asset::to_string("html/jump.html")?;
 
         tt.add_template("index", &index)
             .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;

@@ -1,4 +1,5 @@
 use {
+    crate::Page,
     std::{fs, io, os::unix::fs::PermissionsExt, path::Path},
     vial::asset,
 };
@@ -91,7 +92,7 @@ pub fn page_disk_path(path: &str) -> String {
     format!("{}/{}.md", crate::wiki_root(), pathify(path))
 }
 
-/// All the wiki pages, in alphabetical order.
+/// All the wiki page names, in alphabetical order.
 pub fn page_names() -> Vec<String> {
     let mut names = vec![];
     let root = crate::wiki_root();
@@ -116,6 +117,14 @@ pub fn page_names() -> Vec<String> {
 
     names.sort();
     names
+}
+
+/// Page objects.
+pub fn pages() -> Vec<Page> {
+    page_names()
+        .iter()
+        .map(|name| Page::new(name))
+        .collect::<Vec<_>>()
 }
 
 /// [{ title: "My Page", path: "my_page" }]

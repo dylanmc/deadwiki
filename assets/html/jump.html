@@ -3,6 +3,8 @@
     <input type="text" name="pattern" id="jump-pattern" class="focused" />
   </form>
   <ul id="jump-list">
-    {pages}
+    {{ for page in pages }}
+      <li id="jump-{@index}"><a href="/{page.name}">{page.title}</a></li>
+    {{ endfor }}
   </ul>
 </div>

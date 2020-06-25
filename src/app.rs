@@ -101,14 +101,8 @@ fn new(req: Request) -> Result<impl Responder, io::Error> {
 
 /// Render the index page which lists all wiki pages.
 pub fn index(_req: Request) -> Result<impl Responder, io::Error> {
-    let view = views::Index::new(
-        page_names()
-            .iter()
-            .map(|name| Page::new(name))
-            .collect::<Vec<_>>(),
-    );
-
-    Ok(render::layout("deadwiki", &view.to_string()?, None))
+    let view = views::Index::new(pages());
+    render::layout("deadwiki", &view.to_string()?, None)
 }
 
 fn create(req: Request) -> Result<impl Responder, io::Error> {
@@ -133,29 +127,13 @@ fn create(req: Request) -> Result<impl Responder, io::Error> {
 }
 
 fn jump(_: Request) -> Result<impl Responder, io::Error> {
-    let partial = asset::to_string("html/_jump_page.html")?;
-    if page_names().is_empty() {
+    let pages = pages();
+    if pages.is_empty() {
         return Ok("Add a few wiki pages then come back.".to_string());
     }
 
-    render::layout(
-        "Jump to Wiki Page",
-        asset::to_string("html/jump.html")?.replace(
-            "{pages}",
-            &page_names()
-                .iter()
-                .enumerate()
-                .map(|(id, page)| {
-                    partial
-                        .replace("{page.id}", &id.to_string())
-                        .replace("{page.path}", page)
-                        .replace("{page.name}", &wiki_path_to_title(page))
-                })
-                .collect::<Vec<_>>()
-                .join("\n"),
-        ),
-        None,
-    )
+    let view = views::Jump::new(pages);
+    render::layout("Jump to Wiki Page", &view.to_string()?, None)
 }
 
 fn update(req: Request) -> Result<impl Responder, io::Error> {
