@@ -154,13 +154,8 @@ fn update(req: Request) -> Result<impl Responder, io::Error> {
 fn edit(req: Request) -> Result<impl Responder, io::Error> {
     if let Some(name) = req.arg("name") {
         if let Some(disk_path) = page_path(name) {
-            return Ok(render::layout(
-                "Edit",
-                &asset::to_string("html/edit.html")?
-                    .replace("{markdown}", &fs::read_to_string(disk_path)?),
-                None,
-            )?
-            .to_response());
+            let view = views::Edit::new(fs::read_to_string(disk_path)?);
+            return Ok(render::layout("Edit", &view.to_string()?, None)?.to_response());
         }
     }
     Ok(response_404())
