@@ -6,3 +6,6 @@ pub use jump::Jump;
 
 mod edit;
 pub use edit::Edit;
+
+mod new;
+pub use new::New;

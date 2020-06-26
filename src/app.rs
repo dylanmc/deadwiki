@@ -92,11 +92,8 @@ fn search(req: Request) -> Result<impl Responder, io::Error> {
 }
 
 fn new(req: Request) -> Result<impl Responder, io::Error> {
-    render::layout(
-        "new page",
-        &asset::to_string("html/new.html")?.replace("{name}", &req.query("name").unwrap_or("")),
-        None,
-    )
+    let view = views::New::new(req.query("name").unwrap_or(""));
+    render::layout("New Page", &view.to_string()?, None)
 }
 
 /// Render the index page which lists all wiki pages.
