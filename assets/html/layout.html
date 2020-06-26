@@ -16,12 +16,13 @@
     <title>{title}</title>
   </head>
   <body>
-    <div id="main" class="markdown-body {webview-app}">
-      {nav} {body}
+    <div id="main" class="markdown-body {webview_app}">
+      {nav | unescaped}
+      {body | unescaped}
     </div>
     <script>
       // for fuzzy finder
-      window.WIKI_PAGES = {pages.json};
+      window.WIKI_PAGES = {pages_json | unescaped};
     </script>
   </body>
 </html>

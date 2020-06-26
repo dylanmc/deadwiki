@@ -1,10 +1,9 @@
 //! Rendering "logic".
 
 use {
-    crate::{helper::*, render, util::shell},
+    crate::{helper::*, render, util::shell, views},
     pulldown_cmark as markdown,
     std::{fs, io, str},
-    vial::asset,
 };
 
 /// Render a wiki page to a fully loaded HTML string, with layout.
@@ -42,23 +41,19 @@ where
     T: AsRef<str>,
     S: AsRef<str>,
 {
-    let title = title.as_ref();
-    let body = body.as_ref();
     let mut webview_app = "";
     if cfg!(feature = "gui") {
         webview_app = "webview-app";
     }
 
-    Ok(if asset::exists("html/layout.html") {
-        asset::to_string("html/layout.html")?
-            .replace("{title}", title)
-            .replace("{body}", body)
-            .replace("{webview-app}", webview_app)
-            .replace("{pages.json}", &pages_as_json())
-            .replace("{nav}", nav.unwrap_or(""))
-    } else {
-        body.to_string()
-    })
+    views::Layout::new(
+        title.as_ref(),
+        body.as_ref(),
+        webview_app,
+        pages_as_json(),
+        nav.unwrap_or(""),
+    )
+    .to_string()
 }
 
 /// Convert raw Markdown into HTML.
