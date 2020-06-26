@@ -41,7 +41,7 @@ fn pages_with_tag(tag: &str) -> Result<Vec<String>, io::Error> {
     };
 
     println!("{:?}", std::env::current_dir().unwrap());
-    let out = util::shell("grep", &["-r", &tag, &wiki_root()])?;
+    let out = util::shell("grep", &["-l", "-r", &tag, &wiki_root()])?;
     println!("GREP: {:?}", out);
     Ok(out
         .split("\n")
@@ -65,27 +65,14 @@ fn pages_with_tag(tag: &str) -> Result<Vec<String>, io::Error> {
 
 fn search(req: Request) -> Result<impl Responder, io::Error> {
     if let Some(tag) = req.query("tag") {
-        Ok(render::layout(
-            "search",
-            &asset::to_string("html/search.html")?
-                .replace("{tag}", &format!("#{}", tag))
-                .replace(
-                    "{results}",
-                    &pages_with_tag(tag)?
-                        .iter()
-                        .map(|page| {
-                            format!(
-                                "<li><a href='/{}'>{}</a></li>",
-                                page,
-                                wiki_path_to_title(page)
-                            )
-                        })
-                        .collect::<Vec<_>>()
-                        .join("\n"),
-                ),
-            None,
-        )?
-        .to_response())
+        let view = views::Search::new(
+            tag,
+            pages_with_tag(tag)?
+                .iter()
+                .map(|page| Page::new(page))
+                .collect::<Vec<_>>(),
+        );
+        Ok(render::layout("search", &view.to_string()?, None)?.to_response())
     } else {
         Ok(Response::from(404))
     }

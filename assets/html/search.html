@@ -1,4 +1,6 @@
-<h1>{tag}</h1>
+<h1>#{tag}</h1>
 <ul>
-  {results}
+  {{ for page in pages }}
+    <li><a href='/{page.name}'>{page.title}</a></li>
+  {{ endfor }}
 </ul>

@@ -9,3 +9,6 @@ pub use edit::Edit;
 
 mod new;
 pub use new::New;
+
+mod search;
+pub use search::Search;
