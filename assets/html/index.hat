@@ -1,0 +1,17 @@
+<p>
+  <a href="/new"> new
+  |
+  <a href="/recent"> recent
+  |
+  <a href="/jump"> jump
+<h1> deadwiki
+<article#index-page>
+  empty-list-msg
+  <ul> for page in pages
+    <li> page
+
+<script type="text/javascript"> """
+  window.addEventListener("dblclick", () => {
+    window.location = "/new";
+  });
+"""
