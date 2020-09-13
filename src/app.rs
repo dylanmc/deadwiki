@@ -1,7 +1,7 @@
 //! (Method, URL) => Code
 
 use {
-    crate::{helper::*, render, util, wiki_root},
+    crate::{helper::*, render, wiki_root},
     atomicwrites::{AllowOverwrite, AtomicFile},
     std::{
         collections::HashMap,

@@ -1,5 +1,5 @@
 use {
-    crate::{util, wiki_root},
+    crate::wiki_root,
     std::{fs, io, os::unix::fs::PermissionsExt, path::Path},
     vial::asset,
 };
