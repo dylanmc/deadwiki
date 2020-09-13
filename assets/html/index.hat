@@ -4,11 +4,14 @@
   <a href="/recent"> recent
   |
   <a href="/jump"> jump
+
 <h1> deadwiki
 <article#index-page>
-  empty-list-msg
-  <ul> for page in pages
-    <li> page
+  if pages.empty?
+    <i> Wiki Pages you create will show up here.
+  else
+    <ul> for page in pages
+      <li> page
 
 <script type="text/javascript"> """
   window.addEventListener("dblclick", () => {

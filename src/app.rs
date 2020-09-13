@@ -60,38 +60,19 @@ fn pages_with_tag(tag: &str) -> Result<Vec<String>, io::Error> {
 
 fn search(req: Request) -> Result<impl Responder, io::Error> {
     if let Some(tag) = req.query("tag") {
-        Ok(render::layout(
-            "search",
-            &asset::to_string("html/search.html")?
-                .replace("{tag}", &format!("#{}", tag))
-                .replace(
-                    "{results}",
-                    &pages_with_tag(tag)?
-                        .iter()
-                        .map(|page| {
-                            format!(
-                                "<li><a href='/{}'>{}</a></li>",
-                                page,
-                                wiki_path_to_title(page)
-                            )
-                        })
-                        .collect::<Vec<_>>()
-                        .join("\n"),
-                ),
-            None,
-        )?
-        .to_response())
+        let mut env = Env::new();
+        env.set("tag", tag);
+        env.set("pages", pages_with_tag(tag));
+        layout(env.render("html/search.hat")?)
     } else {
         Ok(Response::from(404))
     }
 }
 
 fn new(req: Request) -> Result<impl Responder, io::Error> {
-    render::layout(
-        "new page",
-        &asset::to_string("html/new.html")?.replace("{name}", &req.query("name").unwrap_or("")),
-        None,
-    )
+    let mut env = Env::new();
+    env.set("name", req.query("name"));
+    layout(env.render("html/new.hat")?)
 }
 
 /// Render the index page which lists all wiki pages.
@@ -264,15 +245,12 @@ fn update(req: Request) -> Result<impl Responder, io::Error> {
 }
 
 fn edit(req: Request) -> Result<impl Responder, io::Error> {
+    let mut env = Env::new();
     if let Some(name) = req.arg("name") {
         if let Some(disk_path) = page_path(name) {
-            return Ok(render::layout(
-                "Edit",
-                &asset::to_string("html/edit.html")?
-                    .replace("{markdown}", &fs::read_to_string(disk_path)?),
-                None,
-            )?
-            .to_response());
+            env.set("name", name);
+            env.set("markdown", &fs::read_to_string(disk_path)?);
+            return Ok(layout("Edit", env.render("html/edit.hat")));
         }
     }
     Ok(response_404())
