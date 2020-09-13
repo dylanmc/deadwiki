@@ -1,0 +1,3 @@
+def <jump page={id,path,name}>
+    <li#jump-{page.id}>
+        <a href="/{page.path}"> page.name

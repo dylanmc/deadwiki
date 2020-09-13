@@ -2,7 +2,8 @@
   <form GET="/jump" autocomplete="off">
     <input:text@pattern#jump-pattern.focused />
   <ul#jump-list> for page in pages
-    <li> pages
+    <jump page=page/>
+
 
 <script> """
   window.WIKI_PAGES = [];
