@@ -80,7 +80,9 @@ fn new(req: Request) -> Result<impl Responder, io::Error> {
 pub fn index(_req: Request) -> Result<impl Responder, io::Error> {
     let mut env = Env::new();
     env.helper("page_url", |_, args| format!("/{}", args[0]).into());
-    env.helper("page_title", |_, args| format!("{}", args[0]).into());
+    env.helper("page_title", |_, args| {
+        wiki_path_to_title(&args[0].to_string()).into()
+    });
 
     env.set("pages", page_names());
     render("deadwiki", env.render("html/index.hat")?)
