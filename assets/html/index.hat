@@ -1,8 +1,6 @@
 <p>
-  <a href="/new"> new
-  |
-  <a href="/recent"> recent
-  |
+  <a href="/new"> new </> |
+  <a href="/recent"> recent </> |
   <a href="/jump"> jump
 
 <h1> deadwiki
