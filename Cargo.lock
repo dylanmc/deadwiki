@@ -59,6 +59,7 @@ version = "0.1.23-dev"
 dependencies = [
  "atomicwrites",
  "autolink",
+ "hatter",
  "lazy_static",
  "pulldown-cmark",
  "vial",
@@ -71,6 +72,10 @@ name = "fuchsia-cprng"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a06f77d526c1a601b7c4cdd98f54b5eaabffc14d5f2f0296febdc7f357c6d3ba"
+
+[[package]]
+name = "hatter"
+version = "0.0.0-dev"
 
 [[package]]
 name = "hermit-abi"
