@@ -6,15 +6,9 @@
   <a href="/jump"> jump
 
 <h1> deadwiki
-<article#index-page>
-  if pages.empty?
+<article#index-page ondblclick=(window.location = "/new")>
+  if empty?(pages)
     <i> Wiki Pages you create will show up here.
   else
     <ul> for page in pages
       <li> <a href=page_url(page)> page_title(page)
-
-<script type="text/javascript"> """
-  window.addEventListener("dblclick", () => {
-    window.location = "/new";
-  });
-"""
