@@ -1,0 +1,10 @@
+<p>
+  <a href="/new"> new
+  |
+  <a href="/recent"> recent
+  |
+  <a href="/jump"> jump
+
+<h1> {page.title}
+<article ondbclick=(window.location = "/new")>
+    {markdown(page.body)}

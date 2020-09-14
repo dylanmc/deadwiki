@@ -1,9 +1,12 @@
 <div#jump-page>
   <form GET="/jump" autocomplete="off">
     <input:text@pattern#jump-pattern.focused />
-  <ul#jump-list> for page in pages
-    <jump page=page/>
-
+  if empty?(pages)
+    <em> Add a few wiki pages and then come back.
+  else
+    <ul#jump-list> for page in pages
+      <li#jump-{page.id}>
+        <a href="/{page.path}"> page.name
 
 <script> """
   window.WIKI_PAGES = [];
