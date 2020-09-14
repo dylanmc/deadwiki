@@ -1,7 +1,7 @@
 //! (Method, URL) => Code
 
 use {
-    crate::{helper::*, wiki_root},
+    crate::{helper::*, render, wiki_root},
     atomicwrites::{AllowOverwrite, AtomicFile},
     std::{
         collections::HashMap,
@@ -77,7 +77,7 @@ fn new(req: Request) -> Result<impl Responder, io::Error> {
 }
 
 /// Render the index page which lists all wiki pages.
-pub fn index(_req: Request) -> Result<impl Responder, io::Error> {
+fn index(_req: Request) -> Result<impl Responder, io::Error> {
     let mut env = Env::new();
     env.helper("page_url", |_, args| format!("/{}", args[0]).into());
     env.helper("page_title", |_, args| {
@@ -176,6 +176,9 @@ fn show(req: Request) -> Result<impl Responder, io::Error> {
         if let Some(_disk_path) = page_path(name) {
             let mut env = Env::new();
             env.set("page", wiki_page(name));
+            env.helper("markdown", |_, args| {
+                render::markdown_to_html(&args[0].to_string()).into()
+            });
             return render(name, env.render("html/show.hat")?);
         }
     }

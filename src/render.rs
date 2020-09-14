@@ -1,67 +1,9 @@
 //! Rendering "logic".
 
-use {
-    crate::{helper::*, render},
-    pulldown_cmark as markdown,
-    std::{fs, io, str},
-    vial::asset,
-};
-
-/// Render a wiki page to a fully loaded HTML string, with layout.
-pub fn page(path: &str) -> Result<String, io::Error> {
-    let raw = path.ends_with(".md");
-    let orig_path = path;
-    let path = if raw {
-        path.trim_end_matches(".md")
-    } else {
-        path
-    };
-    let title = wiki_path_to_title(path);
-    if let Some(path) = page_path(path) {
-        let html = if is_executable(&path) {
-            shell!(path).unwrap_or_else(|e| e.to_string())
-        } else {
-            fs::read_to_string(&path).unwrap_or_else(|_| "".into())
-        };
-        if raw {
-            Ok(format!("<pre>{}</pre>", html))
-        } else {
-            render::layout(&title, &markdown_to_html(&html), Some(&nav(&orig_path)?))
-        }
-    } else {
-        Err(io::Error::new(
-            io::ErrorKind::NotFound,
-            format!("{} not found", path),
-        ))
-    }
-}
-
-/// Renders a chunk of HTML surrounded by `static/html/layout.html`.
-pub fn layout<T, S>(title: T, body: S, nav: Option<&str>) -> Result<String, io::Error>
-where
-    T: AsRef<str>,
-    S: AsRef<str>,
-{
-    let title = title.as_ref();
-    let body = body.as_ref();
-    let mut webview_app = "";
-    if cfg!(feature = "gui") {
-        webview_app = "webview-app";
-    }
-
-    Ok(if asset::exists("html/layout.html") {
-        asset::to_string("html/layout.html")?
-            .replace("{title}", title)
-            .replace("{body}", body)
-            .replace("{webview-app}", webview_app)
-            .replace("{nav}", nav.unwrap_or(""))
-    } else {
-        body.to_string()
-    })
-}
+use {crate::helper::*, pulldown_cmark as markdown, std::str};
 
 /// Convert raw Markdown into HTML.
-fn markdown_to_html(md: &str) -> String {
+pub fn markdown_to_html(md: &str) -> String {
     let mut options = markdown::Options::empty();
     options.insert(markdown::Options::ENABLE_TABLES);
     options.insert(markdown::Options::ENABLE_FOOTNOTES);
