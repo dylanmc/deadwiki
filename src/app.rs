@@ -215,11 +215,10 @@ impl ops::DerefMut for Env {
 impl Env {
     fn new() -> Env {
         Env {
-            vm: hatter::VM::new(true),
+            vm: hatter::VM::new(false),
         }
     }
     fn render(&mut self, path: &str) -> Result<String, io::Error> {
-        let path = std::path::Path::new(path);
-        Ok(self.vm.render(path).unwrap())
+        Ok(self.vm.render(asset::to_string(path)?).unwrap())
     }
 }
