@@ -14,5 +14,4 @@
   <title> title
 <body>
   <div#main.markdown-body.webview-app=webview-app?>
-    nav
     body
