@@ -1,3 +1,8 @@
+use {
+    hatter::{Object, Value},
+    std::rc::Rc,
+};
+
 /// Single Wiki Page
 pub struct Page {
     path: String,
@@ -59,6 +64,25 @@ fn capitalize(s: &str) -> String {
         s.chars().next().unwrap_or('?').to_uppercase(),
         &s.chars().skip(1).collect::<String>()
     )
+}
+
+/// thing.into()
+impl From<Page> for Value {
+    fn from(p: Page) -> Self {
+        Value::Object(Rc::new(p))
+    }
+}
+
+/// In Hatter: page.title, page.url, page.path
+impl Object for Page {
+    fn get(&self, key: &str) -> Option<Value> {
+        match key {
+            "title" => Some(self.title().into()),
+            "url" => Some(self.url().into()),
+            "path" => Some(self.path().into()),
+            _ => None,
+        }
+    }
 }
 
 #[cfg(test)]
