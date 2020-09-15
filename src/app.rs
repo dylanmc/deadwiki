@@ -62,28 +62,28 @@ fn recent(req: Request) -> Result<impl Responder, io::Error> {
 
 fn jump(req: Request) -> Result<impl Responder, io::Error> {
     let mut env = Env::new();
-    let mut pages = vec![];
-    for (i, link) in req
-        .db()
-        .titles()?
-        .iter()
-        .chain(req.db().tags()?.iter())
-        .enumerate()
-    {
+
+    let pages = req.db().pages()?;
+    let pages = pages.iter().enumerate().map(|(i, p)| {
         let mut map: HashMap<String, hatter::Value> = HashMap::new();
         map.insert("id".into(), i.into());
-        map.insert("name".into(), link.into());
-        map.insert(
-            "url".into(),
-            if link.starts_with('#') {
-                format!("/search?tag={}", link.replace('#', "")).into()
-            } else {
-                format!("/{}", link).into()
-            },
-        );
-        pages.push(map);
-    }
-    env.set("pages", pages);
+        map.insert("name".into(), p.title().into());
+        map.insert("url".into(), p.url().into());
+        map
+    });
+
+    let mut idx = pages.len();
+    let tags = req.db().tags()?;
+    let tags = tags.iter().enumerate().map(|(i, tag)| {
+        let mut map: HashMap<String, hatter::Value> = HashMap::new();
+        map.insert("id".into(), (idx + i).into());
+        map.insert("name".into(), tag.into());
+        map.insert("url".into(), tag.into());
+        idx += 1;
+        map
+    });
+
+    env.set("pages", pages.chain(tags).collect::<Vec<_>>());
     render("Jump to Wiki Page", env.render("html/jump.hat")?)
 }
 
