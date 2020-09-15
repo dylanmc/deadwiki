@@ -1,9 +1,16 @@
-//! Rendering "logic".
+//! Convert wiki Markdown to HTML.
+//!
+//! Supports two syntax extensions:
+//!
+//! - [Page] to link directly to a wiki page.
+//! - #tag to link to a hashtag.
+//!
 
-use {crate::helper::*, pulldown_cmark as markdown, std::str};
+use pulldown_cmark as markdown;
 
-/// Convert raw Markdown into HTML.
-pub fn markdown_to_html(md: &str) -> String {
+/// Convert raw wiki Markdown into HTML.
+/// Takes a list of all wiki pages in the system, for [Link]s.
+pub fn to_html(md: &str, names: &[String]) -> String {
     let mut options = markdown::Options::empty();
     options.insert(markdown::Options::ENABLE_TABLES);
     options.insert(markdown::Options::ENABLE_FOOTNOTES);
@@ -25,7 +32,7 @@ pub fn markdown_to_html(md: &str) -> String {
                 let page_name = wiki_link_text.to_lowercase().replace(" ", "_");
                 let link_text = wiki_link_text.clone();
                 wiki_link_text.clear();
-                let page_exists = page_names().contains(&page_name);
+                let page_exists = names.contains(&page_name);
                 let (link_class, link_href) = if page_exists {
                     ("", format!("/{}", page_name))
                 } else {

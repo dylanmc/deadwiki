@@ -1,10 +1,9 @@
 //! (Method, URL) => Code
 
 use {
-    crate::{helper::*, render, wiki_root},
+    crate::{db::ReqWithDB, helper::*, render},
     atomicwrites::{AllowOverwrite, AtomicFile},
     std::{
-        collections::HashMap,
         fs,
         io::{self, Write},
         ops,
@@ -29,41 +28,11 @@ routes! {
     GET "/*name" => show;
 }
 
-// Don't include the '#' when you search. Pass in "hashtag" to
-// search for #hashtag.
-fn pages_with_tag(tag: &str) -> Result<Vec<String>, io::Error> {
-    let tag = if tag.starts_with('#') {
-        tag.to_string()
-    } else {
-        format!("#{}", tag)
-    };
-
-    let out = shell!("grep --exclude-dir .git -l -r '{}' {}", tag, wiki_root())?;
-    Ok(out
-        .split("\n")
-        .filter_map(|line| {
-            if !line.is_empty() {
-                Some(
-                    line.split(':')
-                        .next()
-                        .unwrap_or("?")
-                        .trim_end_matches(".md")
-                        .trim_start_matches(&wiki_root())
-                        .trim_start_matches('/')
-                        .to_string(),
-                )
-            } else {
-                None
-            }
-        })
-        .collect::<Vec<_>>())
-}
-
 fn search(req: Request) -> Result<impl Responder, io::Error> {
     if let Some(tag) = req.query("tag") {
         let mut env = Env::new();
         env.set("tag", tag);
-        env.set("pages", pages_with_tag(tag)?);
+        env.set("pages", req.db().find_pages_with_tag(tag)?);
         render("Search", env.render("html/search.hat")?)
     } else {
         Ok(Response::from(404))
@@ -90,7 +59,7 @@ fn index(_req: Request) -> Result<impl Responder, io::Error> {
 
 fn create(req: Request) -> Result<impl Responder, io::Error> {
     let path = pathify(&req.form("name").unwrap_or(""));
-    if !page_names().contains(&path) {
+    if !req.db().names()?.contains(&path) {
         if let Some(disk_path) = new_page_path(&path) {
             if disk_path.contains('/') {
                 if let Some(dir) = Path::new(&disk_path).parent() {
@@ -111,24 +80,8 @@ fn create(req: Request) -> Result<impl Responder, io::Error> {
 
 // Recently modified wiki pages.
 fn recent(_: Request) -> Result<impl Responder, io::Error> {
-    let out = shell!(
-        r#"git --git-dir={}/.git log --pretty=format: --name-only -n 30 | grep "\.md\$""#,
-        wiki_root()
-    )?;
-    let mut pages = vec![];
-    let mut seen = HashMap::new();
-    for page in out.split("\n") {
-        if seen.get(page).is_some() || page == ".md" || page.is_empty() {
-            // TODO: .md hack
-            continue;
-        } else {
-            pages.push(page);
-            seen.insert(page, true);
-        }
-    }
-
     let mut env = Env::new();
-    env.set("pages", pages);
+    env.set("pages", req.db().recent()?);
     render("Recently Modified Pages", env.render("html/list.hat")?)
 }
 
@@ -173,13 +126,11 @@ fn edit(req: Request) -> Result<impl Responder, io::Error> {
 
 fn show(req: Request) -> Result<impl Responder, io::Error> {
     if let Some(name) = req.arg("name") {
-        if let Some(_disk_path) = page_path(name) {
+        let raw = name.ends_with(".md");
+        if let Some(page) = req.db().find(name.trim_end_matches(".md")) {
             let mut env = Env::new();
-            env.set("page", wiki_page(name));
-            env.helper("markdown", |_, args| {
-                render::markdown_to_html(&args[0].to_string()).into()
-            });
-            return render(name, env.render("html/show.hat")?);
+            env.set("page", page);
+            return render(page.title(), env.render("html/show.hat")?);
         }
     }
     Ok(response_404())
