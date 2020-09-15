@@ -1,7 +1,7 @@
 //! (Method, URL) => Code
 
 use {
-    crate::{db::ReqWithDB, helper::*, render},
+    crate::{db::ReqWithDB, helper::*},
     atomicwrites::{AllowOverwrite, AtomicFile},
     std::{
         fs,
@@ -46,14 +46,14 @@ fn new(req: Request) -> Result<impl Responder, io::Error> {
 }
 
 /// Render the index page which lists all wiki pages.
-fn index(_req: Request) -> Result<impl Responder, io::Error> {
+fn index(req: Request) -> Result<impl Responder, io::Error> {
     let mut env = Env::new();
     env.helper("page_url", |_, args| format!("/{}", args[0]).into());
     env.helper("page_title", |_, args| {
         wiki_path_to_title(&args[0].to_string()).into()
     });
 
-    env.set("pages", page_names());
+    env.set("pages", req.db().names());
     render("deadwiki", env.render("html/index.hat")?)
 }
 
@@ -79,19 +79,20 @@ fn create(req: Request) -> Result<impl Responder, io::Error> {
 }
 
 // Recently modified wiki pages.
-fn recent(_: Request) -> Result<impl Responder, io::Error> {
+fn recent(req: Request) -> Result<impl Responder, io::Error> {
     let mut env = Env::new();
     env.set("pages", req.db().recent()?);
     render("Recently Modified Pages", env.render("html/list.hat")?)
 }
 
-fn jump(_: Request) -> Result<impl Responder, io::Error> {
+fn jump(req: Request) -> Result<impl Responder, io::Error> {
     let mut env = Env::new();
     env.set(
         "pages",
-        page_names()
+        req.db()
+            .names()
             .iter()
-            .chain(tag_names().iter())
+            .chain(req.db().tags().iter())
             .collect::<Vec<_>>(),
     );
     render("Jump to Wiki Page", env.render("html/jump.hat")?)
@@ -129,8 +130,9 @@ fn show(req: Request) -> Result<impl Responder, io::Error> {
         let raw = name.ends_with(".md");
         if let Some(page) = req.db().find(name.trim_end_matches(".md")) {
             let mut env = Env::new();
+            let title = page.title().clone();
             env.set("page", page);
-            return render(page.title(), env.render("html/show.hat")?);
+            return render(title, env.render("html/show.hat")?);
         }
     }
     Ok(response_404())
@@ -138,13 +140,6 @@ fn show(req: Request) -> Result<impl Responder, io::Error> {
 
 fn response_404() -> Response {
     Response::from(404).with_asset("html/404.hat")
-}
-
-fn wiki_page(name: &str) -> HashMap<String, String> {
-    let mut map = HashMap::new();
-    map.insert("title".into(), name.into());
-    map.insert("body".into(), "coming soon".into());
-    map
 }
 
 fn render<S: AsRef<str>>(title: &str, body: S) -> Result<Response, io::Error> {

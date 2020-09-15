@@ -32,7 +32,7 @@ vial = "0.1.2"
 
 [dependencies]
 hatter = { path = "../xhatter" }
-vial = "0.1.2"
+vial = { version = "0.1.2", features = ['state'] }
 
 pulldown-cmark = { version = "0.7", default-features = false }
 autolink = "0.3.0"

@@ -10,7 +10,6 @@ pub mod gui;
 pub mod helper;
 pub mod markdown;
 mod page;
-pub mod render;
 pub mod sync;
 
 pub use page::Page;
