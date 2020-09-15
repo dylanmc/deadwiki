@@ -2,7 +2,7 @@
 
 use {
     crate::{db::ReqWithDB, markdown},
-    std::{collections::HashMap, fs, io, ops},
+    std::{collections::HashMap, io, ops},
     vial::prelude::*,
 };
 
