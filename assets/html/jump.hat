@@ -6,7 +6,7 @@
   else
     <ul#jump-list> for page in pages
       <li#jump-{page.id}>
-        <a href="/{page.path}"> page.name
+        <a href="/{page.name}"> page.name
 
 <script> """
   window.WIKI_PAGES = [];

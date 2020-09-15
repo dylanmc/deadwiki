@@ -2,7 +2,7 @@
 
 use {
     crate::db::ReqWithDB,
-    std::{fs, io, ops},
+    std::{collections::HashMap, fs, io, ops},
     vial::prelude::*,
 };
 
@@ -42,12 +42,7 @@ fn new(req: Request) -> Result<impl Responder, io::Error> {
 /// Render the index page which lists all wiki pages.
 fn index(req: Request) -> Result<impl Responder, io::Error> {
     let mut env = Env::new();
-    env.helper("page_url", |_, args| format!("/{}", args[0]).into());
-    env.helper("page_title", |_, args| {
-        wiki_path_to_title(&args[0].to_string()).into()
-    });
-
-    env.set("pages", req.db().names());
+    env.set("pages", req.db().pages()?);
     render("deadwiki", env.render("html/index.hat")?)
 }
 
@@ -67,14 +62,20 @@ fn recent(req: Request) -> Result<impl Responder, io::Error> {
 
 fn jump(req: Request) -> Result<impl Responder, io::Error> {
     let mut env = Env::new();
-    env.set(
-        "pages",
-        req.db()
-            .names()
-            .iter()
-            .chain(req.db().tags().iter())
-            .collect::<Vec<_>>(),
-    );
+    let mut pages = vec![];
+    for (i, link) in req
+        .db()
+        .names()?
+        .iter()
+        .chain(req.db().tags()?.iter())
+        .enumerate()
+    {
+        let mut map: HashMap<String, hatter::Value> = HashMap::new();
+        map.insert("id".into(), i.into());
+        map.insert("name".into(), link.into());
+        pages.push(map);
+    }
+    env.set("pages", pages);
     render("Jump to Wiki Page", env.render("html/jump.hat")?)
 }
 
@@ -101,12 +102,12 @@ fn edit(req: Request) -> Result<impl Responder, io::Error> {
 
 fn show(req: Request) -> Result<impl Responder, io::Error> {
     if let Some(name) = req.arg("name") {
-        let raw = name.ends_with(".md");
+        // let raw = name.ends_with(".md");
         if let Some(page) = req.db().find(name.trim_end_matches(".md")) {
             let mut env = Env::new();
             let title = page.title().clone();
             env.set("page", page);
-            return render(title, env.render("html/show.hat")?);
+            return render(&title, env.render("html/show.hat")?);
         }
     }
     Ok(response_404())

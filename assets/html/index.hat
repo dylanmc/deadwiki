@@ -9,4 +9,4 @@
     <i> Wiki Pages you create will show up here.
   else
     <ul> for page in pages
-      <li> <a href=page_url(page)> page_title(page)
+      <li> <a href=page.url> page.title
