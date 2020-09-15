@@ -1,6 +1,5 @@
 use {
-    crate::wiki_root,
-    std::{fs, io, os::unix::fs::PermissionsExt, path::Path},
+    std::{fs, io, os::unix::fs::PermissionsExt},
     vial::asset,
 };
 
@@ -13,45 +12,21 @@ pub fn is_executable(path: &str) -> bool {
     }
 }
 
-/// Convert a wiki page name or file path to cleaned up path.
-/// Ex: "Test Results" -> "test_results"
-pub fn pathify(path: &str) -> String {
-    let path = if path.ends_with(".html") && !path.starts_with("html/") {
-        format!("html/{}", path)
+/// Return the <nav> for a page
+pub fn nav(current_path: &str) -> Result<String, io::Error> {
+    let new_link = if current_path.contains('/') {
+        format!(
+            "/new?name={}/",
+            current_path
+                .split('/')
+                .take(current_path.matches('/').count())
+                .collect::<Vec<_>>()
+                .join("/")
+        )
     } else {
-        path.to_string()
+        "/new".to_string()
     };
-    path.to_lowercase()
-        .trim_start_matches('/')
-        .replace("..", ".")
-        .replace(" ", "_")
-        .chars()
-        .filter(|&c| c.is_alphanumeric() || c == '.' || c == '_' || c == '-' || c == '/')
-        .collect::<String>()
-}
-
-/// Path of wiki page on disk, if it exists.
-/// Ex: page_path("Welcome") -> "wiki/welcome.md"
-pub fn page_path(path: &str) -> Option<String> {
-    let path = page_disk_path(path);
-    if Path::new(&path).exists() {
-        Some(path)
-    } else {
-        None
-    }
-}
-
-/// Returns a path on disk to a new wiki page.
-/// Nothing if the page already exists.
-pub fn new_page_path(path: &str) -> Option<String> {
-    if page_path(path).is_none() {
-        Some(page_disk_path(path))
-    } else {
-        None
-    }
-}
-
-/// Returns a wiki path on disk, regardless of whether it exists.
-pub fn page_disk_path(path: &str) -> String {
-    format!("{}/{}.md", wiki_root(), pathify(path))
+    Ok(asset::to_string("html/nav.html")?
+        .replace("{current_path}", current_path)
+        .replace("{new_link}", &new_link))
 }

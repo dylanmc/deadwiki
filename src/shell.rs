@@ -1,8 +1,10 @@
-/// Run a shell command, ex: shell!("grep -R '#deadwiki' {}", wiki_root())
+/// Run a shell command, ex: shell!("grep -R '#deadwiki' {}", dir())
 macro_rules! shell {
-    ($cmd:expr) => {
-        crate::util::shell("sh", &["-c", $cmd.as_ref()])
-    };
+    ($cmd:expr) => {{
+        #[cfg(debug_assertions)]
+        println!("sh> {}", $cmd);
+        crate::shell::shell("sh", &["-c", $cmd.as_ref()])
+    }};
     ($cmd:expr, $($arg:tt)+) => {
         shell!(format!($cmd, $($arg)+));
     };
