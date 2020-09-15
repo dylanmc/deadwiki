@@ -1,6 +1,6 @@
 use {
     hatter::{Object, Value},
-    std::rc::Rc,
+    std::{fs, rc::Rc},
 };
 
 /// Single Wiki Page
@@ -55,6 +55,10 @@ impl Page {
             .collect::<Vec<_>>()
             .join(" ")
     }
+
+    pub fn body(&self) -> String {
+        fs::read_to_string(self.path()).unwrap_or_else(|_| "".into())
+    }
 }
 
 /// Capitalize the first letter of a string.
@@ -78,8 +82,10 @@ impl Object for Page {
     fn get(&self, key: &str) -> Option<Value> {
         match key {
             "title" => Some(self.title().into()),
+            "name" => Some(self.name().into()),
             "url" => Some(self.url().into()),
             "path" => Some(self.path().into()),
+            "body" => Some(self.body().into()),
             _ => None,
         }
     }

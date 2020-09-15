@@ -100,8 +100,7 @@ fn edit(req: Request) -> Result<impl Responder, io::Error> {
     let mut env = Env::new();
     if let Some(name) = req.arg("name") {
         if let Some(page) = req.db().find(name) {
-            env.set("name", name);
-            env.set("markdown", &fs::read_to_string(page.path())?);
+            env.set("page", page);
             return render("Edit", env.render("html/edit.hat")?);
         }
     }
@@ -117,7 +116,8 @@ fn show(req: Request) -> Result<impl Responder, io::Error> {
             let names = req.db().names()?;
             env.set("page", page);
             env.helper("markdown", move |_, args| {
-                markdown::to_html(&args.get(0).map(|a| a.to_str()).unwrap_or(""), &names).into()
+                let src = args.get(0).map(|a| a.to_str()).unwrap_or("");
+                markdown::to_html(&src, &names).into()
             });
             return render(&title, env.render("html/show.hat")?);
         }
