@@ -65,7 +65,7 @@ fn jump(req: Request) -> Result<impl Responder, io::Error> {
     let mut pages = vec![];
     for (i, link) in req
         .db()
-        .names()?
+        .titles()?
         .iter()
         .chain(req.db().tags()?.iter())
         .enumerate()
@@ -73,6 +73,7 @@ fn jump(req: Request) -> Result<impl Responder, io::Error> {
         let mut map: HashMap<String, hatter::Value> = HashMap::new();
         map.insert("id".into(), i.into());
         map.insert("name".into(), link.into());
+        map.insert("url".into(), format!("/{}", link).into());
         pages.push(map);
     }
     env.set("pages", pages);
