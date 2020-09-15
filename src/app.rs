@@ -1,7 +1,7 @@
 //! (Method, URL) => Code
 
 use {
-    crate::db::ReqWithDB,
+    crate::{db::ReqWithDB, markdown},
     std::{collections::HashMap, fs, io, ops},
     vial::prelude::*,
 };
@@ -114,7 +114,11 @@ fn show(req: Request) -> Result<impl Responder, io::Error> {
         if let Some(page) = req.db().find(name.trim_end_matches(".md")) {
             let mut env = Env::new();
             let title = page.title().clone();
+            let names = req.db().names()?;
             env.set("page", page);
+            env.helper("markdown", move |_, args| {
+                markdown::to_html(&args.get(0).map(|a| a.to_str()).unwrap_or(""), &names).into()
+            });
             return render(&title, env.render("html/show.hat")?);
         }
     }
