@@ -28,11 +28,11 @@ pre-release-replacements = [
 dev-version-ext = "dev"
 
 [build-dependencies]
-vial = "0.1.1"
+vial = "0.1.2"
 
 [dependencies]
-vial = { version = "0.1.1", features = ['state'] }
 hatter = { path = "../xhatter" }
+vial = "0.1.2"
 
 pulldown-cmark = { version = "0.7", default-features = false }
 autolink = "0.3.0"
