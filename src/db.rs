@@ -125,7 +125,7 @@ impl DB {
                 if s.is_empty() {
                     None
                 } else {
-                    Some(s[1..].to_string())
+                    Some(s.to_string())
                 }
             })
             .collect::<Vec<_>>())

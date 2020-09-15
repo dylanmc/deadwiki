@@ -73,7 +73,14 @@ fn jump(req: Request) -> Result<impl Responder, io::Error> {
         let mut map: HashMap<String, hatter::Value> = HashMap::new();
         map.insert("id".into(), i.into());
         map.insert("name".into(), link.into());
-        map.insert("url".into(), format!("/{}", link).into());
+        map.insert(
+            "url".into(),
+            if link.starts_with('#') {
+                format!("/search?tag={}", link.replace('#', "")).into()
+            } else {
+                format!("/{}", link).into()
+            },
+        );
         pages.push(map);
     }
     env.set("pages", pages);
