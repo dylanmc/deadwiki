@@ -1,12 +1,9 @@
 <p>
   <a href="/">home</a> |
-  <a
-    href='javascript:window.location = window.location.href.replace("/edit","")'
-    >back</a
-  >
+  <a href="/{page.name}">back</a>
 </p>
 
 <form method="POST" action="" id="form">
-  <textarea id="markdown" name="markdown">{markdown}</textarea>
+  <textarea id="markdown" name="markdown">{page.body}</textarea>
   <input type="submit" />
 </form>

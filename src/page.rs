@@ -1,16 +1,15 @@
-use {crate::markdown, std::fs};
+use {
+    crate::{helper::is_executable, markdown},
+    std::fs,
+};
+
+/// Single Wiki Page
+pub struct Page {
+    path: String,
+    root: String,
+}
 
 tenjin::context! {
-    self: ('p) Context<'p> {
-        page => self.page,
-        path => self.page.path.as_str(),
-        root => self.page.root.as_str(),
-        name => self.page.name(),
-        url => self.page.url().as_str(),
-        title => self.page.title().as_str(),
-        markdown => @raw &markdown(&self.page.body())[..],
-    }
-
     self: Page {
         path => self.path.as_str(),
         root => self.root.as_str(),
@@ -19,22 +18,6 @@ tenjin::context! {
         title => self.title().as_str(),
         body => self.body().as_str(),
     }
-}
-
-pub struct Context<'p> {
-    page: &'p Page,
-}
-
-impl<'p> Context<'p> {
-    pub fn new(page: &'p Page) -> Context<'p> {
-        Context { page }
-    }
-}
-
-/// Single Wiki Page
-pub struct Page {
-    path: String,
-    root: String,
 }
 
 impl Page {
@@ -58,7 +41,11 @@ impl Page {
     }
 
     pub fn body(&self) -> String {
-        fs::read_to_string(&self.path()).unwrap_or_else(|_| "".into())
+        if is_executable(&self.path()) {
+            shell!(self.path()).unwrap_or_else(|e| e.to_string())
+        } else {
+            fs::read_to_string(&self.path()).unwrap_or_else(|_| "".into())
+        }
     }
 
     pub fn path_without_root(&self) -> &str {
@@ -96,11 +83,6 @@ fn capitalize(s: &str) -> String {
         s.chars().next().unwrap_or('?').to_uppercase(),
         &s.chars().skip(1).collect::<String>()
     )
-}
-
-// Shortcut
-fn markdown(txt: &str) -> String {
-    markdown::to_html(txt, &[])
 }
 
 #[cfg(test)]

@@ -3,6 +3,7 @@ extern crate tenjin;
 #[macro_use]
 pub mod shell;
 pub mod app;
+pub mod context;
 pub mod db;
 #[cfg(feature = "gui")]
 pub mod gui;
