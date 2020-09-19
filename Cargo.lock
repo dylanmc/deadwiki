@@ -24,6 +24,7 @@ version = "0.1.23-dev"
 dependencies = [
  "linkify",
  "pulldown-cmark",
+ "tenjin",
  "vial",
  "web-view",
 ]
@@ -36,6 +37,12 @@ checksum = "61565ff7aaace3525556587bd2dc31d4a07071957be715e63ce7b1eccf51a8f4"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "htmlescape"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e9025058dae765dee5070ec375f591e2ba14638c63feff74f13805a72e523163"
 
 [[package]]
 name = "libc"
@@ -101,6 +108,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "tenjin"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "501499d17225b3f93b7b5d9b26443d9ddfe2a38ac2e44b0bc2d953d75577359d"
+dependencies = [
+ "htmlescape",
+]
+
+[[package]]
 name = "threadpool"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -132,9 +148,9 @@ checksum = "078775d0255232fb988e6fccf26ddc9d1ac274299aaedcedce21c6f72cc533ce"
 
 [[package]]
 name = "vial"
-version = "0.1.2"
+version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "769cd09c28f3dd8157eaf99d37b0d12449756d3eb7cc7bf5aa8144f15bc1900e"
+checksum = "a879c7a53b92297272e7aac19044bf4a7bf4db29a6290e3f4bd199b5695f4865"
 dependencies = [
  "libc-strftime",
  "percent-encoding",

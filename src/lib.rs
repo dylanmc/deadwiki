@@ -1,4 +1,6 @@
 #[macro_use]
+extern crate tenjin;
+#[macro_use]
 pub mod shell;
 pub mod app;
 pub mod db;
