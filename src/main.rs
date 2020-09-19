@@ -1,4 +1,4 @@
-use deadwiki::{app, db, sync};
+use deadwiki::{app, db::DB, state, sync};
 
 fn main() {
     let args = std::env::args().skip(1).collect::<Vec<String>>();
@@ -76,8 +76,7 @@ fn main() {
         }
     }
 
-    let db = db::DB::new(path);
-    vial::use_state!(db);
+    vial::use_state!(state::new(DB::new(path)));
     if let Err(e) = vial::run_with_banner!("~> started at {}", format!("{}:{}", host, port), app) {
         eprintln!("WebServer Error: {}", e);
     }

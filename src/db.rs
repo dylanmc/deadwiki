@@ -10,16 +10,6 @@ use {
 
 pub type Result<T> = std::result::Result<T, std::io::Error>;
 
-pub trait ReqWithDB {
-    fn db(&self) -> &DB;
-}
-
-impl ReqWithDB for vial::Request {
-    fn db(&self) -> &DB {
-        self.state::<DB>()
-    }
-}
-
 pub struct DB {
     root: String,
 }
