@@ -62,6 +62,28 @@ impl State {
     where
         C: tenjin::Context<BufWriter<Vec<u8>>>,
     {
+        self.render_with_layout("layout", name, data)
+    }
+
+    pub fn render_with_layout<C>(&self, layout: &str, name: &str, data: &C) -> io::Result<String>
+    where
+        C: tenjin::Context<BufWriter<Vec<u8>>>,
+    {
+        let combined = &asset::to_string(&format!("html/{}.html", layout))?
+            .replace("{body}", &asset::to_string(&format!("html/{}.html", name))?);
+        let mut tpl = self.tpl.write().unwrap();
+        tpl.register(name, tenjin::Template::compile(combined).unwrap());
+        let template = tpl.get(name).unwrap();
+        let mut out = BufWriter::new(Vec::new());
+        tpl.render(template, &data, &mut out).unwrap();
+        let bytes = out.into_inner()?;
+        Ok(String::from_utf8(bytes).unwrap())
+    }
+
+    pub fn render_without_layout<C>(&self, name: &str, data: &C) -> io::Result<String>
+    where
+        C: tenjin::Context<BufWriter<Vec<u8>>>,
+    {
         let mut tpl = self.tpl.write().unwrap();
         tpl.register(
             name,
