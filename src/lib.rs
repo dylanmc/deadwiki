@@ -9,8 +9,7 @@ pub mod db;
 pub mod gui;
 pub mod helper;
 pub mod markdown;
-mod page;
-pub mod render;
+pub mod page;
 pub mod state;
 pub mod sync;
 

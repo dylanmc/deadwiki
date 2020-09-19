@@ -1,18 +1,45 @@
 use crate::page::Page;
 
-pub struct Context<'p> {
-    page: &'p Page,
-}
-
 tenjin::context! {
-    self: ('p) Context<'p> {
+    self: Context {
+        is_app => self.is_app,
+        title => self.title,
+    }
+
+    self: ('p) PageContext<'p> {
+        is_app => self.is_app,
+        title => self.title.as_str(),
         page => self.page,
         markdown => @raw crate::markdown::to_html(&self.page.body(), &[]).as_str(),
     }
 }
 
-impl<'p> Context<'p> {
-    pub fn new(page: &'p Page) -> Context<'p> {
-        Context { page }
+pub struct Context {
+    title: &'static str,
+    is_app: bool,
+}
+
+impl Context {
+    pub fn new(title: &'static str) -> Context {
+        Context {
+            title,
+            is_app: false,
+        }
+    }
+}
+
+pub struct PageContext<'p> {
+    page: &'p Page,
+    title: String,
+    is_app: bool,
+}
+
+impl<'p> PageContext<'p> {
+    pub fn new(title: String, page: &'p Page) -> PageContext<'p> {
+        PageContext {
+            title,
+            page,
+            is_app: false,
+        }
     }
 }

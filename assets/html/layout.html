@@ -16,8 +16,8 @@
     <title>{title}</title>
   </head>
   <body>
-    <div id="main" class="markdown-body {webview-app}">
-      {nav} {body}
+    <div id="main" class="markdown-body {if is_app}webview-app{end}">
+      {body}
     </div>
   </body>
 </html>

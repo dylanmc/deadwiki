@@ -1,7 +1,11 @@
 //! (Method, URL) => Code
 
 use {
-    crate::{context::Context, helper::*, render, state::ReqState},
+    crate::{
+        context::{Context, PageContext},
+        helper::*,
+        state::ReqState,
+    },
     std::{fs, io},
     vial::prelude::*,
 };
@@ -24,6 +28,9 @@ routes! {
 
 fn search(req: Request) -> io::Result<impl Responder> {
     if let Some(tag) = req.query("tag") {
+        let data = Context::new("Search");
+        return Ok(req.render("search", &data)?.to_response());
+
         Ok(render::layout(
             "search",
             &asset::to_string("html/search.html")?
@@ -192,13 +199,8 @@ fn update(req: Request) -> io::Result<impl Responder> {
 fn edit(req: Request) -> io::Result<impl Responder> {
     if let Some(name) = req.arg("name") {
         if let Some(page) = req.db().find(name) {
-            return Ok(render::layout(
-                "Edit",
-                &asset::to_string("html/edit.html")?
-                    .replace("{markdown}", &fs::read_to_string(page.path())?),
-                None,
-            )?
-            .to_response());
+            let data = PageContext::new("Edit".into(), &page);
+            return Ok(req.render("edit", &data)?.to_response());
         }
     }
     Ok(response_404())
@@ -208,7 +210,7 @@ fn show(req: Request) -> io::Result<impl Responder> {
     if let Some(name) = req.arg("name") {
         // let raw = name.ends_with(".md");
         if let Some(page) = req.db().find(name.trim_end_matches(".md")) {
-            let data = Context::new(&page);
+            let data = PageContext::new(page.title(), &page);
             return Ok(req.render("show", &data)?.to_response());
         }
     }

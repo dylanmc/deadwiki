@@ -1,7 +1,4 @@
-use {
-    crate::{helper::is_executable, markdown},
-    std::fs,
-};
+use {crate::helper::is_executable, std::fs};
 
 /// Single Wiki Page
 pub struct Page {
