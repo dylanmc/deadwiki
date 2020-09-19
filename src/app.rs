@@ -1,7 +1,7 @@
 //! (Method, URL) => Code
 
 use {
-    crate::{helper::*, page, render, state::ReqState},
+    crate::{context::Context, helper::*, render, state::ReqState},
     std::{fs, io},
     vial::prelude::*,
 };
@@ -208,10 +208,8 @@ fn show(req: Request) -> io::Result<impl Responder> {
     if let Some(name) = req.arg("name") {
         // let raw = name.ends_with(".md");
         if let Some(page) = req.db().find(name.trim_end_matches(".md")) {
-            let data = page::Context::new(&page);
-            return Ok(
-                render::layout(page.title(), req.render("show", &data)?, None)?.to_response(),
-            );
+            let data = Context::new(&page);
+            return Ok(req.render("show", &data)?.to_response());
         }
     }
     Ok(response_404())
