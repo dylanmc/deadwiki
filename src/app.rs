@@ -140,26 +140,29 @@ fn render<S: AsRef<str>>(title: &str, body: S) -> Result<Response, io::Error> {
 }
 
 struct Env {
-    vm: hatter::VM,
+    env: hatter::Env,
 }
 impl ops::Deref for Env {
-    type Target = hatter::VM;
+    type Target = hatter::Env;
     fn deref(&self) -> &Self::Target {
-        &self.vm
+        &self.env
     }
 }
 impl ops::DerefMut for Env {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.vm
+        &mut self.env
     }
 }
 impl Env {
     fn new() -> Env {
         Env {
-            vm: hatter::VM::new(false),
+            env: hatter::Env::new(),
         }
     }
     fn render(&mut self, path: &str) -> Result<String, io::Error> {
-        Ok(self.vm.render(asset::to_string(path)?).unwrap())
+        Ok(self
+            .env
+            .render(&hatter::compile(&asset::to_string(path)?)?)
+            .unwrap())
     }
 }

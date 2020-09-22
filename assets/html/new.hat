@@ -1,6 +1,5 @@
 <p>
-  <a href="/"> home
-  |
+  <a href="/"> home </> "|"
   <a href=(history.back())> back
 
 <form#form POST="/new">
