@@ -1,7 +1,7 @@
 <p>
   <a href="/"> home </> "|"
-  <a href=(window.location = window.location.href.replace("/edit",""))> back
+  <a href={page.url}> back
 
 <form#form POST="">
-  <textarea#markdown@markdown> page.body
+  <textarea#markdown@markdown> {page.body}
   <input:submit />
