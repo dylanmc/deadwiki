@@ -2,7 +2,7 @@
 
 use {
     crate::{
-        context::{Context, PageContext},
+        context::{Context, PageContext, SearchContext},
         helper::*,
         state::ReqState,
     },
@@ -28,27 +28,9 @@ routes! {
 
 fn search(req: Request) -> io::Result<impl Responder> {
     if let Some(tag) = req.query("tag") {
-        let data = Context::new("Search");
+        let pages = req.db().find_pages_with_tag(tag)?;
+        let data = SearchContext::new("Search", &pages);
         return Ok(req.render("search", &data)?.to_response());
-
-        Ok(render::layout(
-            "search",
-            &asset::to_string("html/search.html")?
-                .replace("{tag}", &format!("#{}", tag))
-                .replace(
-                    "{results}",
-                    &req.db()
-                        .find_pages_with_tag(tag)?
-                        .iter()
-                        .map(|page| {
-                            format!("<li><a href='{}'>{}</a></li>", page.url(), page.title())
-                        })
-                        .collect::<Vec<_>>()
-                        .join("\n"),
-                ),
-            None,
-        )?
-        .to_response())
     } else {
         Ok(Response::from(404))
     }

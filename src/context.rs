@@ -12,6 +12,12 @@ tenjin::context! {
         page => self.page,
         markdown => @raw crate::markdown::to_html(&self.page.body(), &[]).as_str(),
     }
+
+    self: ('p) SearchContext<'p> {
+        is_app => self.is_app,
+        title => self.title,
+        results => @iter self.results,
+    }
 }
 
 pub struct Context {
@@ -39,6 +45,38 @@ impl<'p> PageContext<'p> {
         PageContext {
             title,
             page,
+            is_app: false,
+        }
+    }
+}
+
+pub struct NewContext {
+    results: &'p [Page],
+    title: &'p str,
+    is_app: bool,
+}
+
+impl NewContext {
+    pub fn new(title: &'p str, results: &'p [Page]) -> SearchContext<'p> {
+        SearchContext {
+            results,
+            title,
+            is_app: false,
+        }
+    }
+}
+
+pub struct SearchContext<'p> {
+    results: &'p [Page],
+    title: &'p str,
+    is_app: bool,
+}
+
+impl<'p> SearchContext<'p> {
+    pub fn new(title: &'p str, results: &'p [Page]) -> SearchContext<'p> {
+        SearchContext {
+            results,
+            title,
             is_app: false,
         }
     }
